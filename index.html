@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>КВИЗ with ALEX</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@latest/dist/web/static/pretendard.css" />
 <style>
   :root{
@@ -223,6 +224,15 @@
   .option.incorrect .opt-mark{ color: var(--red); }
   .option.dim{ opacity:.45; }
   .option.locked{ pointer-events:none; }
+  .option.removed{ display:none; }
+
+  .hint-btn{
+    display:block; width:100%; margin-top:14px; padding:12px;
+    border:none; border-radius: var(--radius-md); background: var(--blue-soft);
+    color: var(--blue); font-weight:700; font-size:13.5px; font-family:inherit;
+    cursor:pointer;
+  }
+  .hint-btn:disabled{ opacity:.4; pointer-events:none; }
 
   .feedback-line{
     text-align:center; font-size:12.5px; color: var(--text-secondary); font-weight:500;
@@ -431,6 +441,7 @@
     </div>
 
     <div class="options" id="options"></div>
+    <button class="hint-btn" id="hint-btn">💡 Подсказка за рекламу</button>
     <div class="feedback-line" id="feedback-line">&nbsp;</div>
   </section>
 
@@ -508,6 +519,126 @@
   var NICKNAME_KEY = 'krquiz_nickname';
   var AVATAR_KEY = 'krquiz_avatar';
   var SOUND_KEY = 'krquiz_sound_on';
+  var AD_SESSION_COUNT_KEY = 'krquiz_ad_session_count';
+  var AD_THRESHOLD_KEY = 'krquiz_ad_threshold';
+  var AD_TOTAL_SESSIONS_KEY = 'krquiz_total_sessions';
+  var AD_DAILY_DATE_KEY = 'krquiz_ad_day';
+  var AD_DAILY_COUNT_KEY = 'krquiz_ad_day_count';
+
+  // ---------- Adsgram ----------
+  var ADSGRAM_SESSION_BLOCK_ID = 'int-44398'; // реклама между сессиями / доступ к 고급
+  var ADSGRAM_HINT_BLOCK_ID = 'int-44397';    // rewarded-реклама за подсказку
+  var AD_GRACE_SESSIONS = 2;   // первые N запусков квиза — вообще без рекламы
+  var AD_DAILY_CAP = 5;        // максимум показов interstitial-рекламы в день
+  var AdController = null;
+  var HintAdController = null;
+  try{
+    if(window.Adsgram){
+      AdController = window.Adsgram.init({ blockId: ADSGRAM_SESSION_BLOCK_ID });
+      HintAdController = window.Adsgram.init({ blockId: ADSGRAM_HINT_BLOCK_ID });
+    }
+  }catch(e){}
+
+  function showInterstitialAd(onDone){
+    if(!AdController){ onDone(); return; }
+    AdController.show()
+      .then(function(){ onDone(); })
+      .catch(function(){ onDone(); });
+  }
+
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+  }
+
+  function getDailyAdCount(){
+    var day = localStorage.getItem(AD_DAILY_DATE_KEY);
+    if(day !== todayStr()){
+      try{
+        localStorage.setItem(AD_DAILY_DATE_KEY, todayStr());
+        localStorage.setItem(AD_DAILY_COUNT_KEY, '0');
+      }catch(e){}
+      return 0;
+    }
+    return parseInt(localStorage.getItem(AD_DAILY_COUNT_KEY), 10) || 0;
+  }
+
+  function bumpDailyAdCount(){
+    var count = getDailyAdCount() + 1;
+    try{ localStorage.setItem(AD_DAILY_COUNT_KEY, String(count)); }catch(e){}
+  }
+
+  function dailyCapReached(){
+    return getDailyAdCount() >= AD_DAILY_CAP;
+  }
+
+  function isInGracePeriod(){
+    var n = parseInt(localStorage.getItem(AD_TOTAL_SESSIONS_KEY), 10) || 0;
+    return n < AD_GRACE_SESSIONS;
+  }
+
+  function bumpTotalSessions(){
+    var n = (parseInt(localStorage.getItem(AD_TOTAL_SESSIONS_KEY), 10) || 0) + 1;
+    try{ localStorage.setItem(AD_TOTAL_SESSIONS_KEY, String(n)); }catch(e){}
+  }
+
+  function getAdThreshold(){
+    var t = parseInt(localStorage.getItem(AD_THRESHOLD_KEY), 10);
+    if(!t || t < 2 || t > 3){
+      t = 2 + Math.floor(Math.random() * 2); // 2 или 3
+      try{ localStorage.setItem(AD_THRESHOLD_KEY, String(t)); }catch(e){}
+    }
+    return t;
+  }
+
+  function bumpAdThreshold(){
+    var t = 2 + Math.floor(Math.random() * 2);
+    try{ localStorage.setItem(AD_THRESHOLD_KEY, String(t)); }catch(e){}
+  }
+
+  // Показываем рекламу каждые 2-3 старта сессии (кроме случаев, когда
+  // реклама уже показана из-за продвинутого уровня — см. requestStartSession)
+  function maybeShowPeriodicAd(onDone){
+    var count = parseInt(localStorage.getItem(AD_SESSION_COUNT_KEY), 10) || 0;
+    count++;
+    var threshold = getAdThreshold();
+    if(count >= threshold){
+      try{ localStorage.setItem(AD_SESSION_COUNT_KEY, '0'); }catch(e){}
+      bumpAdThreshold();
+      if(dailyCapReached()){ onDone(); return; }
+      bumpDailyAdCount();
+      showInterstitialAd(onDone);
+    } else {
+      try{ localStorage.setItem(AD_SESSION_COUNT_KEY, String(count)); }catch(e){}
+      onDone();
+    }
+  }
+
+  // Точка входа для старта сессии с учётом рекламной логики:
+  // - первые AD_GRACE_SESSIONS запусков — без рекламы (грейс-период для новых юзеров)
+  // - дневной кап на кол-во показов interstitial-рекламы
+  // - уровень 고급 (advanced) — реклама показывается всегда (в рамках кап/грейс)
+  // - остальные уровни — реклама раз в 2-3 сессии
+  function requestStartSession(){
+    bumpTotalSessions();
+    var grace = isInGracePeriod();
+
+    if(state.level === 'advanced'){
+      if(grace || dailyCapReached()){
+        startSession();
+      } else {
+        bumpDailyAdCount();
+        showInterstitialAd(function(){ startSession(); });
+      }
+      return;
+    }
+
+    if(grace){
+      startSession();
+      return;
+    }
+    maybeShowPeriodicAd(function(){ startSession(); });
+  }
   var LEVEL_HANGUL = { beginner:'초급', intermediate:'중급', advanced:'고급' };
   var AVATAR_OPTIONS = ['🐰','🐻','🐱','🦊','🐼','🐨','🐯','🦁','🐸','🐧'];
 
@@ -971,7 +1102,7 @@
     showScreen('screen-step-direction');
   });
   document.getElementById('step2-start').addEventListener('click', function(){
-    startSession();
+    requestStartSession();
   });
 
   // ---------- квиз ----------
@@ -1016,9 +1147,14 @@
 
   function nextQuestion(){
     state.locked = false;
+    state.hintUsed = false;
     document.getElementById('feedback-line').innerHTML = '&nbsp;';
     var badge = document.getElementById('result-badge');
     badge.classList.remove('show','correct','wrong');
+    var hintBtn = document.getElementById('hint-btn');
+    hintBtn.disabled = false;
+    hintBtn.style.display = '';
+    hintBtn.textContent = '💡 Подсказка за рекламу';
 
     var entry = state.pool[Math.floor(Math.random()*state.pool.length)];
     state.current = entry;
@@ -1045,6 +1181,46 @@
       div.addEventListener('click', function(){ handleAnswer(opt, div); });
       optsEl.appendChild(div);
     });
+  }
+
+  // ---------- rewarded-подсказка (50/50) ----------
+  document.getElementById('hint-btn').addEventListener('click', function(){
+    if(state.locked || state.hintUsed) return;
+    var btn = document.getElementById('hint-btn');
+    if(!HintAdController){
+      applyHint();
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Загрузка рекламы…';
+    HintAdController.show()
+      .then(function(){
+        // юзер досмотрел рекламу до конца — выдаём награду
+        applyHint();
+      })
+      .catch(function(){
+        // реклама пропущена/не загрузилась — награду не даём
+        btn.disabled = false;
+        btn.textContent = '💡 Подсказка за рекламу';
+      });
+  });
+
+  function applyHint(){
+    state.hintUsed = true;
+    var btn = document.getElementById('hint-btn');
+    btn.style.display = 'none';
+    var options = document.querySelectorAll('.option');
+    var wrongOnes = [];
+    options.forEach(function(o){
+      var text = o.querySelector('span').textContent;
+      if(text !== state.correctAnswer) wrongOnes.push(o);
+    });
+    // прячем 2 случайных неверных варианта, оставляем 1 неверный + верный
+    for(var i = wrongOnes.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i+1));
+      var tmp = wrongOnes[i]; wrongOnes[i] = wrongOnes[j]; wrongOnes[j] = tmp;
+    }
+    wrongOnes.slice(0, 2).forEach(function(o){ o.classList.add('removed'); });
   }
 
   function escapeHtml(s){
@@ -1140,7 +1316,7 @@
     setTab('home'); renderHome(); showScreen('screen-home');
   });
   document.getElementById('end-again').addEventListener('click', function(){
-    startSession();
+    requestStartSession();
   });
 
   function endToHome(){
