@@ -72,7 +72,7 @@
   .btn-lg{ padding:19px 20px; font-size:17px; font-weight:700; }
 
   /* ---------- HOME ---------- */
-  .top-row{ display:flex; justify-content:flex-end; margin-bottom:4px; }
+  .top-row{ display:flex; justify-content:flex-end; margin-bottom:2px; }
   .header-actions{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
   .icon-btn{
     width:38px; height:38px; border-radius:50%; background: var(--blue-soft); border:none;
@@ -82,6 +82,10 @@
   .icon-btn:active{ transform: scale(.94); }
 
   .hero{ display:flex; flex-direction:column; align-items:center; text-align:center; padding:14px 0 20px; position:relative; }
+  .hero-compact{ display:flex; flex-direction:column; align-items:center; text-align:center; padding:0 0 10px; position:relative; }
+  .hero-compact .avatar-badge{ width:50px; height:50px; font-size:26px; margin-bottom:6px; }
+  .hero-compact .brand-title{ font-size:16px; }
+  .hero-compact .brand-sub{ font-size:12px; margin-top:1px; }
   .avatar-badge{
     border-radius:50%; background: var(--blue-soft); border:none;
     display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; padding:0;
@@ -124,6 +128,28 @@
   .summary-row{ display:flex; justify-content:center; gap:20px; margin-top:12px; }
   .summary-chip{ font-size:14px; color: var(--blue); font-weight:600; display:flex; align-items:center; gap:4px; }
   .summary-chip.muted{ color: var(--text-secondary); font-weight:500; }
+
+  .summary-row-compact{
+    display:flex; align-items:center; background: var(--card); border-radius: var(--radius-md);
+    padding:10px 6px; margin-bottom:12px;
+  }
+  .summary-mini{ flex:1; text-align:center; min-width:0; }
+  .summary-mini-num{ font-size:15px; font-weight:800; color: var(--text-primary); letter-spacing:-.01em; white-space:nowrap; }
+  .summary-mini-label{ font-size:10px; color: var(--text-secondary); margin-top:1px; font-weight:600; }
+  .summary-mini-sep{ width:1px; height:22px; background: var(--line); flex-shrink:0; }
+
+  .mode-grid{
+    flex:1; display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+    gap:10px; min-height:0; padding-bottom:2px;
+  }
+  .mode-tile{
+    background: var(--card); border-radius: var(--radius-lg); min-height:0; min-width:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+    cursor:pointer; transition: transform .15s ease, background .15s ease;
+  }
+  .mode-tile:active{ transform: scale(.95); background: var(--blue-soft); }
+  .mode-tile-icon{ font-size: clamp(22px, 8vw, 34px); line-height:1; }
+  .mode-tile-label{ font-size: clamp(11px, 3vw, 13px); font-weight:800; color: var(--text-primary); letter-spacing:.01em; text-align:center; }
 
   .section-title{ font-size:13px; font-weight:600; color: var(--text-primary); margin: 0 0 8px; }
   .cta-space{ height:8px; }
@@ -264,6 +290,7 @@
   .end-wrap{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; position:relative; z-index:1; }
   .confetti-canvas{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; }
   #screen-end.active{ position:relative; }
+  #screen-crossword.active{ position:relative; }
   .end-badge{
     width:80px; height:80px; border-radius:50%; background: var(--blue-soft); color: var(--blue);
     display:flex; align-items:center; justify-content:center; font-size:34px; margin-bottom:18px; font-weight:700;
@@ -340,6 +367,186 @@
   }
   @keyframes pulse{ 0%,100%{ opacity:.5; transform:scale(.92);} 50%{ opacity:1; transform:scale(1);} }
   #loader p{ font-size:12px; color: var(--text-secondary); font-weight:500; }
+  /* ---------- CROSSWORD ---------- */
+  .cw-grid-wrap{
+    background: var(--white); border-radius: var(--radius-lg); padding:10px;
+    box-shadow: 0 1px 2px rgba(25,31,40,.04); margin: 14px 0;
+  }
+  .cw-grid{ display:grid; gap:2px; margin:0 auto; touch-action: manipulation; }
+  .cw-cell{
+    position:relative; aspect-ratio:1/1; background:var(--card); border-radius:4px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cw-cell.block{ background:transparent; }
+  .cw-cell.active-cell{ background: var(--blue); }
+  .cw-cell.active-word{ background: var(--blue-soft); }
+  .cw-cell.correct{ background: var(--green-soft); }
+  .cw-cell.incorrect{ background: var(--red-soft); }
+  .cw-cell.active-cell.correct{ background: var(--green); }
+  .cw-cell input{
+    width:100%; height:100%; border:none; background:transparent; text-align:center;
+    font-family:inherit; font-weight:800; text-transform:uppercase;
+    color: var(--text-primary); caret-color: transparent; padding:0;
+    font-size: clamp(9px, 3.4vw, 15px);
+  }
+  .cw-cell.active-cell input{ color:#fff; }
+  .cw-cell.correct input{ color: var(--green); }
+  .cw-cell.incorrect input{ color: var(--red); }
+  .cw-cell-num{
+    position:absolute; top:1px; left:2px; font-size:7px; font-weight:700;
+    color: var(--text-tertiary); line-height:1; pointer-events:none;
+  }
+  .cw-cell.active-cell .cw-cell-num{ color: rgba(255,255,255,.85); }
+  .cw-cell.active-word .cw-cell-num{ color: var(--blue); }
+
+  .cw-clue-bar{
+    display:flex; align-items:center; gap:12px; background:var(--white);
+    border-radius: var(--radius-md); padding:14px 16px; margin-bottom:14px;
+    box-shadow: 0 1px 2px rgba(25,31,40,.04);
+  }
+  .cw-clue-badge{
+    flex:0 0 auto; width:32px; height:32px; border-radius:50%; background:var(--blue-soft);
+    color:var(--blue); font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center;
+  }
+  .cw-clue-dir{ font-size:11px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.03em; margin-bottom:2px; }
+  .cw-clue-word{ font-size:18px; font-weight:800; }
+
+  .cw-actions{ display:flex; gap:10px; margin-bottom:16px; }
+  .cw-progress-row{ display:flex; align-items:center; gap:10px; margin: 4px 0 4px; }
+  .cw-progress-track{ flex:1; height:8px; border-radius:8px; background:var(--line); overflow:hidden; }
+  .cw-progress-fill{ height:100%; background:var(--blue); border-radius:8px; width:0%; transition: width .35s cubic-bezier(.2,.8,.2,1); }
+  .cw-progress-label{ font-size:12px; font-weight:700; color:var(--text-secondary); white-space:nowrap; }
+
+  .cw-clue-list{ margin-bottom:6px; }
+  .cw-clue-list-title{ font-size:12.5px; font-weight:700; color:var(--text-secondary); margin:0 0 6px 2px; }
+  .cw-clue-item{
+    display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius: var(--radius-sm); cursor:pointer;
+  }
+  .cw-clue-item:active{ background: var(--line); }
+  .cw-clue-item.solved .cw-clue-item-word{ color: var(--text-tertiary); text-decoration: line-through; }
+  .cw-clue-item-num{ font-size:11.5px; font-weight:800; color: var(--text-tertiary); width:16px; flex:0 0 auto; }
+  .cw-clue-item-word{ font-size:14px; font-weight:700; flex:1; }
+  .cw-clue-item-check{ font-size:13px; color: var(--green); opacity:0; }
+  .cw-clue-item.solved .cw-clue-item-check{ opacity:1; }
+
+  .cw-overlay{
+    position:fixed; inset:0; background: rgba(25,31,40,.55); display:flex;
+    align-items:center; justify-content:center; padding:24px; z-index:50;
+    opacity:0; pointer-events:none; transition: opacity .25s ease;
+  }
+  .cw-overlay.show{ opacity:1; pointer-events:auto; }
+  .cw-overlay-card{
+    background:#fff; border-radius: var(--radius-lg); padding:32px 26px; text-align:center;
+    max-width:320px; width:100%; transform: scale(.92); transition: transform .25s cubic-bezier(.2,.8,.2,1);
+  }
+  .cw-overlay.show .cw-overlay-card{ transform: scale(1); }
+  .cw-overlay-mark{
+    width:64px; height:64px; border-radius:50%; background: var(--green-soft); color: var(--green);
+    font-size:30px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;
+  }
+  .cw-overlay-title{ font-size:20px; font-weight:800; margin:0 0 6px; }
+  .cw-overlay-sub{ font-size:13.5px; color: var(--text-secondary); margin:0 0 22px; }
+
+  /* ---------- MEMORY ---------- */
+  #screen-memory.active{ position:relative; }
+  .mem-progress-row{ display:flex; align-items:center; gap:10px; }
+  .mem-progress-track{ flex:1; height:8px; border-radius:8px; background:var(--line); overflow:hidden; }
+  .mem-progress-fill{ height:100%; background: var(--blue); border-radius:8px; width:0%; transition:width .35s cubic-bezier(.2,.8,.2,1); }
+  .mem-progress-label{ font-size:12px; font-weight:700; color: var(--text-secondary); white-space:nowrap; }
+
+  .mem-grid{
+    flex:1; display:grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr);
+    gap:8px; margin-top:12px; min-height:0;
+  }
+  .mem-card{
+    border-radius: var(--radius-md); background: var(--blue); min-height:0; min-width:0;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    position:relative; transition: transform .15s ease, background .2s ease;
+  }
+  .mem-card-back{ font-size:22px; }
+  .mem-card-face{
+    font-size: clamp(10px, 3.6vw, 13.5px); font-weight:800; color:#fff; text-align:center;
+    padding:4px; display:none; line-height:1.2;
+  }
+  .mem-card.flipped{ background: var(--white); border:1.5px solid var(--blue-soft); }
+  .mem-card.flipped .mem-card-face{ display:block; color: var(--text-primary); }
+  .mem-card.flipped .mem-card-back{ display:none; }
+  .mem-card.matched{ background: var(--green-soft); border:1.5px solid var(--green); cursor:default; }
+  .mem-card.matched .mem-card-face{ display:block; color: var(--green); }
+  .mem-card.matched .mem-card-back{ display:none; }
+  .mem-card.wrong{ animation: memShake .3s ease; }
+  @keyframes memShake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-4px);} 75%{transform:translateX(4px);} }
+
+  .mem-overlay{
+    position:fixed; inset:0; background: rgba(25,31,40,.55); display:flex;
+    align-items:center; justify-content:center; padding:24px; z-index:50;
+    opacity:0; pointer-events:none; transition: opacity .25s ease;
+  }
+  .mem-overlay.show{ opacity:1; pointer-events:auto; }
+  .mem-overlay-card{
+    background:#fff; border-radius: var(--radius-lg); padding:32px 26px; text-align:center;
+    max-width:320px; width:100%; transform: scale(.92); transition: transform .25s cubic-bezier(.2,.8,.2,1);
+  }
+  .mem-overlay.show .mem-overlay-card{ transform: scale(1); }
+  .mem-overlay-mark{
+    width:64px; height:64px; border-radius:50%; background: var(--green-soft); color: var(--green);
+    font-size:30px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;
+  }
+  .mem-overlay-title{ font-size:20px; font-weight:800; margin:0 0 6px; }
+  .mem-overlay-sub{ font-size:13.5px; color: var(--text-secondary); margin:0 0 22px; }
+
+  /* ---------- SYLLABLES ---------- */
+  #screen-syllables.active{ position:relative; }
+  .syl-progress-row{ display:flex; align-items:center; gap:10px; }
+  .syl-progress-track{ flex:1; height:8px; border-radius:8px; background:var(--line); overflow:hidden; }
+  .syl-progress-fill{ height:100%; background: var(--blue); border-radius:8px; width:0%; transition:width .35s cubic-bezier(.2,.8,.2,1); }
+  .syl-streak-pill{ background: var(--card); border-radius:999px; padding:6px 12px; font-size:13px; font-weight:700; color: var(--text-secondary); white-space:nowrap; margin-left:8px; }
+
+  .syl-clue-card{
+    background: var(--white); border-radius: var(--radius-lg); padding:28px 20px; text-align:center;
+    margin:18px 0 22px; box-shadow: 0 1px 2px rgba(25,31,40,.04);
+  }
+  .syl-clue-label{ font-size:12px; font-weight:700; color: var(--text-tertiary); text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px; }
+  .syl-clue-text{ font-size:24px; font-weight:800; }
+
+  .syl-slots{ display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:24px; min-height:52px; }
+  .syl-slot{
+    width:46px; height:46px; border-radius: var(--radius-sm); background: var(--card);
+    border:1.5px dashed var(--line); display:flex; align-items:center; justify-content:center;
+    font-size:17px; font-weight:800; color: var(--text-primary); cursor:pointer;
+  }
+  .syl-slot.filled{ border-style:solid; border-color: var(--blue-soft); background: var(--blue-soft); }
+  .syl-slot.correct{ border-color: var(--green); background: var(--green-soft); color: var(--green); }
+  .syl-slot.incorrect{ border-color: var(--red); background: var(--red-soft); color: var(--red); }
+
+  .syl-chips{ display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:22px; }
+  .syl-chip{
+    min-width:46px; height:46px; padding:0 10px; border-radius: var(--radius-sm); background: var(--white);
+    box-shadow: 0 1px 2px rgba(25,31,40,.06); display:flex; align-items:center; justify-content:center;
+    font-size:17px; font-weight:800; color: var(--text-primary); cursor:pointer; transition: opacity .15s ease, transform .15s ease;
+  }
+  .syl-chip.used{ opacity:0; pointer-events:none; transform: scale(.7); }
+  .syl-chip:active{ transform: scale(.94); }
+
+  .syl-actions{ display:flex; gap:10px; }
+
+  .syl-overlay{
+    position:fixed; inset:0; background: rgba(25,31,40,.55); display:flex;
+    align-items:center; justify-content:center; padding:24px; z-index:50;
+    opacity:0; pointer-events:none; transition: opacity .25s ease;
+  }
+  .syl-overlay.show{ opacity:1; pointer-events:auto; }
+  .syl-overlay-card{
+    background:#fff; border-radius: var(--radius-lg); padding:32px 26px; text-align:center;
+    max-width:320px; width:100%; transform: scale(.92); transition: transform .25s cubic-bezier(.2,.8,.2,1);
+  }
+  .syl-overlay.show .syl-overlay-card{ transform: scale(1); }
+  .syl-overlay-mark{
+    width:64px; height:64px; border-radius:50%; background: var(--green-soft); color: var(--green);
+    font-size:30px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;
+  }
+  .syl-overlay-title{ font-size:20px; font-weight:800; margin:0 0 6px; }
+  .syl-overlay-sub{ font-size:13.5px; color: var(--text-secondary); margin:0 0 22px; }
 </style>
 </head>
 <body>
@@ -356,24 +563,48 @@
       </div>
     </div>
 
-    <div class="hero">
+    <div class="hero-compact">
       <button class="avatar-badge" id="avatar-btn" aria-label="Выбрать персонажа">🐰</button>
       <div class="brand-title">КВИЗ with ALEX</div>
       <div class="brand-sub name-clickable" id="user-name">Гость</div>
       <div class="avatar-picker" id="avatar-picker"></div>
     </div>
 
-    <div class="summary-card">
-      <p class="summary-label">Всего очков</p>
-      <div class="summary-num" id="home-score">0</div>
-      <div class="summary-row">
-        <span class="summary-chip">🔥 <span id="home-best-streak">0</span></span>
-        <span class="summary-chip muted">точность <span id="home-accuracy">0%</span></span>
+    <div class="summary-row-compact">
+      <div class="summary-mini">
+        <div class="summary-mini-num" id="home-score">0</div>
+        <div class="summary-mini-label">очков</div>
+      </div>
+      <div class="summary-mini-sep"></div>
+      <div class="summary-mini">
+        <div class="summary-mini-num">🔥 <span id="home-best-streak">0</span></div>
+        <div class="summary-mini-label">серия</div>
+      </div>
+      <div class="summary-mini-sep"></div>
+      <div class="summary-mini">
+        <div class="summary-mini-num" id="home-accuracy">0%</div>
+        <div class="summary-mini-label">точность</div>
       </div>
     </div>
 
-    <div class="cta-space"></div>
-    <button class="btn btn-primary btn-block btn-lg" id="start-btn">Начать</button>
+    <div class="mode-grid">
+      <div class="mode-tile" id="mode-quiz-btn">
+        <div class="mode-tile-icon">🎯</div>
+        <div class="mode-tile-label">КВИЗ</div>
+      </div>
+      <div class="mode-tile" id="mode-crossword-btn">
+        <div class="mode-tile-icon">🧩</div>
+        <div class="mode-tile-label">КРОССВОРД</div>
+      </div>
+      <div class="mode-tile" id="mode-memory-btn">
+        <div class="mode-tile-icon">🃏</div>
+        <div class="mode-tile-label">КАРТОЧКИ</div>
+      </div>
+      <div class="mode-tile" id="mode-syllables-btn">
+        <div class="mode-tile-icon">🔤</div>
+        <div class="mode-tile-label">СЛОВА</div>
+      </div>
+    </div>
   </section>
 
   <!-- ============ STEP 1: DIRECTION ============ -->
@@ -383,7 +614,7 @@
       <div class="step-progress"><div class="step-progress-fill" style="width:50%;"></div></div>
     </div>
     <div class="step-body">
-      <div class="step-title">В каком направлении<br>будем учиться?</div>
+      <div class="step-title" id="step1-title">В каком направлении<br>будем учиться?</div>
       <div class="step-choice-col">
         <div class="choice choice-lg" data-dir="kr_ru">
           <div class="flags">🇰🇷 → 🇷🇺</div>
@@ -405,7 +636,7 @@
       <div class="step-progress"><div class="step-progress-fill" style="width:100%;"></div></div>
     </div>
     <div class="step-body">
-      <div class="step-title">Выбери уровень<br>сложности</div>
+      <div class="step-title" id="step2-title">Выбери уровень<br>сложности</div>
       <div class="level-list">
         <div class="level" data-level="beginner">
           <span class="level-name">초급 · Начальный</span>
@@ -460,6 +691,116 @@
       <button class="btn btn-primary btn-block" id="end-again">Следующий тур</button>
       <div style="height:10px;"></div>
       <button class="btn btn-ghost btn-block" id="end-home">На главную</button>
+    </div>
+  </section>
+
+  <!-- ============ CROSSWORD ============ -->
+  <section class="screen" id="screen-crossword">
+    <canvas id="cw-confetti-canvas" class="confetti-canvas"></canvas>
+    <div class="quiz-head">
+      <button class="back-btn" id="cw-back">✕</button>
+      <div class="cw-progress-row" style="flex:1;">
+        <div class="cw-progress-track"><div class="cw-progress-fill" id="cw-progress-fill"></div></div>
+        <div class="cw-progress-label" id="cw-progress-label">0 / 0</div>
+      </div>
+    </div>
+
+    <div class="cw-grid-wrap">
+      <div class="cw-grid" id="cw-grid"></div>
+    </div>
+
+    <div class="cw-clue-bar" id="cw-clue-bar">
+      <div class="cw-clue-badge" id="cw-clue-badge">1</div>
+      <div class="clue-text">
+        <div class="cw-clue-dir" id="cw-clue-dir">по горизонтали</div>
+        <div class="cw-clue-word" id="cw-clue-word">…</div>
+      </div>
+    </div>
+
+    <div class="cw-actions">
+      <button class="btn btn-secondary" id="cw-check">Проверить</button>
+      <button class="btn btn-primary" id="cw-hint">💡 Буква за рекламу</button>
+    </div>
+
+    <div class="cw-clue-list">
+      <div class="cw-clue-list-title">ПО ГОРИЗОНТАЛИ</div>
+      <div id="cw-clues-h"></div>
+    </div>
+    <div class="cw-clue-list">
+      <div class="cw-clue-list-title">ПО ВЕРТИКАЛИ</div>
+      <div id="cw-clues-v"></div>
+    </div>
+
+    <div class="cw-overlay" id="cw-overlay">
+      <div class="cw-overlay-card">
+        <div class="cw-overlay-mark">✓</div>
+        <div class="cw-overlay-title">Кроссворд решён!</div>
+        <div class="cw-overlay-sub" id="cw-overlay-sub">Все слова на месте. Отличная работа.</div>
+        <button class="btn btn-primary btn-block" id="cw-next">Следующий тур</button>
+        <div style="height:10px;"></div>
+        <button class="btn btn-ghost btn-block" id="cw-home">На главную</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MEMORY ============ -->
+  <section class="screen" id="screen-memory">
+    <canvas id="mem-confetti-canvas" class="confetti-canvas"></canvas>
+    <div class="quiz-head">
+      <button class="back-btn" id="mem-back">✕</button>
+      <div class="mem-progress-row" style="flex:1;">
+        <div class="mem-progress-track"><div class="mem-progress-fill" id="mem-progress-fill"></div></div>
+        <div class="mem-progress-label" id="mem-progress-label">0 / 0</div>
+      </div>
+    </div>
+
+    <div class="mem-grid" id="mem-grid"></div>
+
+    <div class="mem-overlay" id="mem-overlay">
+      <div class="mem-overlay-card">
+        <div class="mem-overlay-mark">✓</div>
+        <div class="mem-overlay-title">Все пары найдены!</div>
+        <div class="mem-overlay-sub">Отличная память.</div>
+        <button class="btn btn-primary btn-block" id="mem-next">Следующий тур</button>
+        <div style="height:10px;"></div>
+        <button class="btn btn-ghost btn-block" id="mem-home">На главную</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SYLLABLES ============ -->
+  <section class="screen" id="screen-syllables">
+    <canvas id="syl-confetti-canvas" class="confetti-canvas"></canvas>
+    <div class="quiz-head">
+      <button class="back-btn" id="syl-back">✕</button>
+      <div class="syl-progress-row" style="flex:1;">
+        <div class="syl-progress-track"><div class="syl-progress-fill" id="syl-progress-fill"></div></div>
+      </div>
+      <div class="syl-streak-pill">🔥 <span id="syl-streak">0</span></div>
+    </div>
+
+    <div class="syl-clue-card">
+      <div class="syl-clue-label" id="syl-clue-label">переведи и собери слово</div>
+      <div class="syl-clue-text" id="syl-clue-text">…</div>
+    </div>
+
+    <div class="syl-slots" id="syl-slots"></div>
+    <div class="syl-chips" id="syl-chips"></div>
+
+    <div class="syl-actions">
+      <button class="btn btn-secondary" id="syl-clear">Очистить</button>
+      <button class="btn btn-primary" id="syl-hint">💡 Буква за рекламу</button>
+    </div>
+
+    <div class="syl-overlay" id="syl-overlay">
+      <div class="syl-overlay-card">
+        <div class="syl-overlay-mark">✓</div>
+        <div class="syl-overlay-title">Тур завершён!</div>
+        <div class="syl-overlay-sub">Правильно: <span id="syl-overlay-correct">0</span> из <span id="syl-overlay-total">0</span></div>
+        <button class="btn btn-primary btn-block" id="syl-overlay-next">Следующий тур</button>
+        <div style="height:10px;"></div>
+        <button class="btn btn-ghost btn-block" id="syl-overlay-home">На главную</button>
+      </div>
     </div>
   </section>
 
@@ -529,7 +870,7 @@
   var ADSGRAM_SESSION_BLOCK_ID = 'int-44398'; // реклама между сессиями / доступ к 고급
   var ADSGRAM_HINT_BLOCK_ID = '44397';        // rewarded-реклама за подсказку
   var AD_GRACE_SESSIONS = 2;   // первые N запусков квиза — вообще без рекламы
-  var AD_DAILY_CAP = 5;        // максимум показов interstitial-рекламы в день
+  var AD_DAILY_CAP = 10;       // максимум показов interstitial-рекламы в день
   var AdController = null;
   var HintAdController = null;
   try{
@@ -614,30 +955,38 @@
     }
   }
 
-  // Точка входа для старта сессии с учётом рекламной логики:
+  // Точка входа для старта сессии (квиз/кроссворд) с учётом рекламной логики:
   // - первые AD_GRACE_SESSIONS запусков — без рекламы (грейс-период для новых юзеров)
   // - дневной кап на кол-во показов interstitial-рекламы
   // - уровень 고급 (advanced) — реклама показывается всегда (в рамках кап/грейс)
   // - остальные уровни — реклама раз в 2-3 сессии
-  function requestStartSession(){
+  function requestSessionStart(startFn){
     bumpTotalSessions();
     var grace = isInGracePeriod();
 
     if(state.level === 'advanced'){
       if(grace || dailyCapReached()){
-        startSession();
+        startFn();
       } else {
         bumpDailyAdCount();
-        showInterstitialAd(function(){ startSession(); });
+        showInterstitialAd(function(){ startFn(); });
       }
       return;
     }
 
     if(grace){
-      startSession();
+      startFn();
       return;
     }
-    maybeShowPeriodicAd(function(){ startSession(); });
+    maybeShowPeriodicAd(function(){ startFn(); });
+  }
+
+  function requestStartSession(){
+    requestSessionStart(startSession);
+  }
+
+  function requestStartCrossword(){
+    requestSessionStart(startCrossword);
   }
   var LEVEL_HANGUL = { beginner:'초급', intermediate:'중급', advanced:'고급' };
   var AVATAR_OPTIONS = ['🐰','🐻','🐱','🦊','🐼','🐨','🐯','🦁','🐸','🐧'];
@@ -736,8 +1085,8 @@
 
   // ---------- конфетти ----------
   var confettiRunning = false;
-  function triggerConfetti(){
-    var canvas = document.getElementById('confetti-canvas');
+  function triggerConfetti(canvasId){
+    var canvas = document.getElementById(canvasId || 'confetti-canvas');
     if(!canvas || confettiRunning) return;
     var parent = canvas.parentElement;
     var w = parent.clientWidth || window.innerWidth;
@@ -792,6 +1141,7 @@
 
   var state = {
     words: [],
+    mode: 'quiz',
     direction: 'kr_ru',
     level: 'beginner',
     pool: [],
@@ -1089,8 +1439,40 @@
   });
   renderStepSelections();
 
-  document.getElementById('start-btn').addEventListener('click', function(){
+  var STEP_TITLES = {
+    quiz: { step1:'В каком направлении<br>будем учиться?', step2:'Выбери уровень<br>сложности', btn:'Начать' },
+    crossword: { step1:'На каком языке<br>вписывать ответы?', step2:'Выбери уровень<br>слов для кроссворда', btn:'Собрать кроссворд' },
+    memory: { step1:'В каком направлении<br>будем учиться?', step2:'Выбери уровень<br>слов для карточек', btn:'Начать игру' },
+    syllables: { step1:'', step2:'Выбери уровень<br>слов', btn:'Собрать слово' }
+  };
+
+  function updateStepTitles(){
+    var t = STEP_TITLES[state.mode] || STEP_TITLES.quiz;
+    document.getElementById('step1-title').innerHTML = t.step1;
+    document.getElementById('step2-title').innerHTML = t.step2;
+    document.getElementById('step2-start').textContent = t.btn;
+  }
+
+  document.getElementById('mode-quiz-btn').addEventListener('click', function(){
+    state.mode = 'quiz';
+    updateStepTitles();
     showScreen('screen-step-direction');
+  });
+  document.getElementById('mode-crossword-btn').addEventListener('click', function(){
+    state.mode = 'crossword';
+    updateStepTitles();
+    showScreen('screen-step-direction');
+  });
+  document.getElementById('mode-memory-btn').addEventListener('click', function(){
+    state.mode = 'memory';
+    updateStepTitles();
+    showScreen('screen-step-level');
+  });
+  document.getElementById('mode-syllables-btn').addEventListener('click', function(){
+    state.mode = 'syllables';
+    state.direction = 'kr_ru'; // всегда собираем корейское слово по слогам
+    updateStepTitles();
+    showScreen('screen-step-level');
   });
   document.getElementById('step1-back').addEventListener('click', function(){
     showScreen('screen-home');
@@ -1099,10 +1481,22 @@
     showScreen('screen-step-level');
   });
   document.getElementById('step2-back').addEventListener('click', function(){
-    showScreen('screen-step-direction');
+    if(state.mode === 'syllables' || state.mode === 'memory'){
+      showScreen('screen-home');
+    } else {
+      showScreen('screen-step-direction');
+    }
   });
   document.getElementById('step2-start').addEventListener('click', function(){
-    requestStartSession();
+    if(state.mode === 'crossword'){
+      requestStartCrossword();
+    } else if(state.mode === 'memory'){
+      requestStartMemory();
+    } else if(state.mode === 'syllables'){
+      requestStartSyllables();
+    } else {
+      requestStartSession();
+    }
   });
 
   // ---------- квиз ----------
@@ -1325,6 +1719,875 @@
     renderHome();
     showScreen('screen-home');
   }
+
+  // ---------- кроссворд ----------
+  var cw = {
+    data: null,        // { width, height, words: [{num, answer, clue, row, col, dir}] }
+    cellMap: {},        // "r,c" -> { letter, words:[{wordIndex, indexInWord}] }
+    cellEls: {},
+    activeWordIndex: 0,
+    activeCellKey: null,
+    solvedWords: {}
+  };
+
+  function shuffleArr(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i+1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  // готовит пул слов под кроссворд: ответ/подсказка зависят от направления
+  function getCrosswordCandidates(){
+    var isKrToRu = state.direction === 'kr_ru';
+    var pool = state.words.filter(function(w){ return w.level === state.level; });
+    var seen = {};
+    var out = [];
+    pool.forEach(function(w){
+      var answer, clue;
+      if(isKrToRu){
+        answer = (w.translation || '').trim();
+        clue = w.word;
+        if(!answer || /[,;\s]/.test(answer)) return;
+        if(!/^[А-Яа-яЁё\-]+$/.test(answer)) return;
+        if(answer.length < 3 || answer.length > 9) return;
+      } else {
+        answer = (w.word || '').trim();
+        clue = w.translation;
+        if(!answer || /\s/.test(answer)) return;
+        var chars = Array.from(answer);
+        if(chars.length < 2 || chars.length > 6) return;
+      }
+      var key = answer.toLowerCase();
+      if(seen[key]) return;
+      seen[key] = true;
+      out.push({ answer: answer.toUpperCase(), clue: clue });
+    });
+    return out;
+  }
+
+  // жадный генератор кроссворда: на каждом шаге берёт слово с максимальным пересечением
+  function generateCrossword(candidates, targetWords, maxSize){
+    var pool = shuffleArr(candidates.slice());
+    pool.sort(function(a,b){ return Array.from(b.answer).length - Array.from(a.answer).length; });
+    pool = pool.slice(0, 300);
+    shuffleArr(pool);
+
+    var size = maxSize * 2 + 4;
+    var grid = {};
+    var placed = [];
+    var minR=null, maxR=null, minC=null, maxC=null;
+
+    function bboxWith(r,c,dir,n){
+      var r2 = dir==='H' ? r : r+n-1;
+      var c2 = dir==='H' ? c+n-1 : c;
+      return {
+        minR: minR===null ? r : Math.min(minR,r),
+        maxR: maxR===null ? r2 : Math.max(maxR,r2),
+        minC: minC===null ? c : Math.min(minC,c),
+        maxC: maxC===null ? c2 : Math.max(maxC,c2)
+      };
+    }
+
+    function canPlace(letters, r, c, dir){
+      var n = letters.length;
+      var cells = [];
+      for(var i=0;i<n;i++){
+        cells.push(dir==='H' ? [r, c+i] : [r+i, c]);
+      }
+      var before = dir==='H' ? [r, c-1] : [r-1, c];
+      var after = dir==='H' ? [r, c+n] : [r+n, c];
+      for(var i=0;i<cells.length;i++){
+        var x=cells[i][0], y=cells[i][1];
+        if(x<0||y<0||x>=size||y>=size) return false;
+      }
+      if(grid[before[0]+','+before[1]]) return false;
+      if(grid[after[0]+','+after[1]]) return false;
+      var overlaps = 0;
+      for(var i=0;i<cells.length;i++){
+        var x=cells[i][0], y=cells[i][1];
+        var existing = grid[x+','+y];
+        if(existing !== undefined){
+          if(existing !== letters[i]) return false;
+          overlaps++;
+        } else {
+          if(dir==='H'){
+            if(grid[(x-1)+','+y] || grid[(x+1)+','+y]) return false;
+          } else {
+            if(grid[x+','+(y-1)] || grid[x+','+(y+1)]) return false;
+          }
+        }
+      }
+      var bb = bboxWith(r,c,dir,n);
+      if((bb.maxR-bb.minR+1) > maxSize || (bb.maxC-bb.minC+1) > maxSize) return false;
+      return overlaps > 0 || placed.length === 0;
+    }
+
+    function doPlace(letters, r, c, dir, meta){
+      var n = letters.length;
+      for(var i=0;i<n;i++){
+        if(dir==='H') grid[r+','+(c+i)] = letters[i];
+        else grid[(r+i)+','+c] = letters[i];
+      }
+      meta.r=r; meta.c=c; meta.dir=dir; meta.len=n;
+      placed.push(meta);
+      var bb = bboxWith(r,c,dir,n);
+      minR=bb.minR; maxR=bb.maxR; minC=bb.minC; maxC=bb.maxC;
+    }
+
+    function bestPlacement(entry){
+      var letters = Array.from(entry.answer);
+      var n = letters.length;
+      if(placed.length === 0){
+        var r = Math.floor(size/2), c = Math.floor(size/2 - n/2);
+        return { dir:'H', r:r, c:c, overlaps:0 };
+      }
+      var options = [];
+      Object.keys(grid).forEach(function(key){
+        var parts = key.split(',');
+        var x = parseInt(parts[0],10), y = parseInt(parts[1],10);
+        var letter = grid[key];
+        for(var i=0;i<letters.length;i++){
+          if(letters[i] !== letter) continue;
+          var rH=x, cH=y-i;
+          if(canPlace(letters, rH, cH, 'H')){
+            var ov=0; for(var k=0;k<n;k++){ if(grid[rH+','+(cH+k)]===letters[k]) ov++; }
+            options.push({overlaps:ov, dir:'H', r:rH, c:cH});
+          }
+          var rV=x-i, cV=y;
+          if(canPlace(letters, rV, cV, 'V')){
+            var ov2=0; for(var k=0;k<n;k++){ if(grid[(rV+k)+','+cV]===letters[k]) ov2++; }
+            options.push({overlaps:ov2, dir:'V', r:rV, c:cV});
+          }
+        }
+      });
+      if(!options.length) return null;
+      options.sort(function(a,b){ return b.overlaps - a.overlaps; });
+      return options[0];
+    }
+
+    var first = pool.shift();
+    if(!first) return null;
+    var n0 = Array.from(first.answer).length;
+    var r0 = Math.floor(size/2), c0 = Math.floor(size/2 - n0/2);
+    doPlace(Array.from(first.answer), r0, c0, 'H', { answer:first.answer, clue:first.clue });
+
+    var used = {};
+    used[first.answer.toLowerCase()] = true;
+
+    while(placed.length < targetWords && pool.length){
+      var best = null;
+      for(var i=0;i<pool.length;i++){
+        var entry = pool[i];
+        if(used[entry.answer.toLowerCase()]) continue;
+        var res = bestPlacement(entry);
+        if(!res) continue;
+        if(!best || res.overlaps > best.res.overlaps){
+          best = { entry: entry, res: res };
+        }
+      }
+      if(!best) break;
+      doPlace(Array.from(best.entry.answer), best.res.r, best.res.c, best.res.dir, { answer: best.entry.answer, clue: best.entry.clue });
+      used[best.entry.answer.toLowerCase()] = true;
+      pool = pool.filter(function(e){ return !used[e.answer.toLowerCase()]; });
+    }
+
+    if(placed.length < 5) return null;
+
+    placed.forEach(function(p){ p.r -= minR; p.c -= minC; });
+    var height = maxR-minR+1, width = maxC-minC+1;
+
+    var starts = [];
+    var startSeen = {};
+    placed.forEach(function(p){
+      var k = p.r+','+p.c;
+      if(!startSeen[k]){ startSeen[k]=true; starts.push([p.r,p.c]); }
+    });
+    starts.sort(function(a,b){ return (a[0]-b[0]) || (a[1]-b[1]); });
+    var numMap = {};
+    starts.forEach(function(pos, idx){ numMap[pos[0]+','+pos[1]] = idx+1; });
+
+    var words = placed.map(function(p){
+      return { num: numMap[p.r+','+p.c], answer: p.answer, clue: p.clue, row: p.r, col: p.c, dir: p.dir };
+    });
+
+    return { width: width, height: height, words: words };
+  }
+
+  var LEVEL_CROSSWORD_TARGET = { beginner: 10, intermediate: 8, advanced: 6 };
+
+  function buildCrosswordData(){
+    var candidates = getCrosswordCandidates();
+    var target = LEVEL_CROSSWORD_TARGET[state.level] || 10;
+    if(candidates.length < Math.min(6, target)) return null;
+    var maxSize = state.level === 'advanced' ? 15 : (state.level === 'intermediate' ? 13 : 12);
+    var best = null;
+    var bestScore = -Infinity;
+    for(var attempt = 0; attempt < 40; attempt++){
+      var result = generateCrossword(candidates, target, maxSize);
+      if(!result) continue;
+      var hCount = result.words.filter(function(w){ return w.dir === 'H'; }).length;
+      var vCount = result.words.length - hCount;
+      var countDiff = Math.abs(result.words.length - target);
+      var balanceDiff = Math.abs(hCount - vCount);
+      // приоритет: 1) точное кол-во слов под уровень, 2) баланс горизонталь/вертикаль
+      var score = -countDiff * 100 - balanceDiff * 5 + result.words.length;
+      if(score > bestScore){
+        bestScore = score;
+        best = result;
+      }
+      if(countDiff === 0 && balanceDiff <= 1) break;
+    }
+    return best;
+  }
+
+  function startCrossword(){
+    var data = buildCrosswordData();
+    if(!data){
+      alert('Недостаточно слов для кроссворда на этом уровне/направлении.');
+      return;
+    }
+    cw.data = data;
+    cw.solvedWords = {};
+    renderCrosswordGrid();
+    showScreen('screen-crossword');
+    document.getElementById('cw-overlay').classList.remove('show');
+    if(tg && tg.BackButton){
+      tg.BackButton.show();
+      tg.BackButton.onClick(endCrosswordToHome);
+    }
+  }
+
+  function cwWordCells(wi){
+    var word = cw.data.words[wi];
+    var cells = [];
+    var letters = Array.from(word.answer);
+    for(var i=0;i<letters.length;i++){
+      var r = word.dir==='V' ? word.row+i : word.row;
+      var c = word.dir==='H' ? word.col+i : word.col;
+      cells.push(r+','+c);
+    }
+    return cells;
+  }
+
+  function renderCrosswordGrid(){
+    var data = cw.data;
+    cw.cellMap = {};
+    data.words.forEach(function(word, wi){
+      var letters = Array.from(word.answer);
+      for(var i=0;i<letters.length;i++){
+        var r = word.dir==='V' ? word.row+i : word.row;
+        var c = word.dir==='H' ? word.col+i : word.col;
+        var key = r+','+c;
+        if(!cw.cellMap[key]) cw.cellMap[key] = { letter: letters[i], words: [] };
+        cw.cellMap[key].words.push({ wordIndex: wi, indexInWord: i });
+      }
+    });
+
+    var gridEl = document.getElementById('cw-grid');
+    gridEl.innerHTML = '';
+    gridEl.style.gridTemplateColumns = 'repeat(' + data.width + ', 1fr)';
+    gridEl.style.gridTemplateRows = 'repeat(' + data.height + ', 1fr)';
+    gridEl.style.maxWidth = (data.height >= data.width ? '100%' : (440 * data.width / data.height) + 'px');
+
+    cw.cellEls = {};
+
+    for(var r=0;r<data.height;r++){
+      for(var c=0;c<data.width;c++){
+        var key = r+','+c;
+        var info = cw.cellMap[key];
+        var cellDiv = document.createElement('div');
+        if(!info){
+          cellDiv.className = 'cw-cell block';
+          gridEl.appendChild(cellDiv);
+          continue;
+        }
+        cellDiv.className = 'cw-cell';
+        cellDiv.dataset.key = key;
+
+        var startNum = null;
+        data.words.forEach(function(word){
+          if(word.row===r && word.col===c) startNum = word.num;
+        });
+        if(startNum){
+          var numEl = document.createElement('div');
+          numEl.className = 'cw-cell-num';
+          numEl.textContent = startNum;
+          cellDiv.appendChild(numEl);
+        }
+
+        var input = document.createElement('input');
+        input.setAttribute('maxlength','1');
+        input.setAttribute('autocomplete','off');
+        input.setAttribute('autocapitalize','characters');
+        input.setAttribute('inputmode','text');
+        cellDiv.appendChild(input);
+
+        cellDiv.addEventListener('click', function(){ cwOnCellFocus(this.dataset.key); });
+        input.addEventListener('focus', function(){ cwOnCellFocus(this.parentElement.dataset.key); });
+        input.addEventListener('input', function(e){
+          var isKrToRu = state.direction === 'kr_ru';
+          var val;
+          if(isKrToRu){
+            val = this.value.toUpperCase().replace(/[^А-ЯЁ]/g,'');
+          } else {
+            val = this.value.replace(/[^\uAC00-\uD7A3]/g,'');
+          }
+          this.value = Array.from(val).slice(-1).join('');
+          cwOnCellInput(this.parentElement.dataset.key, this.value);
+        });
+        input.addEventListener('keydown', function(e){ cwOnCellKeydown(this.parentElement.dataset.key, e); });
+
+        gridEl.appendChild(cellDiv);
+        cw.cellEls[key] = cellDiv;
+      }
+    }
+
+    cw.activeWordIndex = 0;
+    cw.activeCellKey = cwWordCells(0)[0];
+    cwRender();
+    cwUpdateProgress();
+  }
+
+  function cwOnCellFocus(key){
+    var info = cw.cellMap[key];
+    if(!info) return;
+    var candidates = info.words.map(function(w){ return w.wordIndex; });
+    var newWordIndex = candidates[0];
+    if(cw.activeCellKey === key && candidates.length > 1){
+      var currentIdx = candidates.indexOf(cw.activeWordIndex);
+      newWordIndex = candidates[(currentIdx+1) % candidates.length];
+    } else if(candidates.indexOf(cw.activeWordIndex) !== -1){
+      newWordIndex = cw.activeWordIndex;
+    }
+    cw.activeCellKey = key;
+    cw.activeWordIndex = newWordIndex;
+    cwRender();
+  }
+
+  function cwOnCellInput(key, val){
+    if(val) cwMoveNext(key);
+    cwCheckAutoComplete();
+    cwRender();
+  }
+
+  function cwMoveNext(key){
+    var cells = cwWordCells(cw.activeWordIndex);
+    var idx = cells.indexOf(key);
+    if(idx !== -1 && idx < cells.length-1){
+      cw.activeCellKey = cells[idx+1];
+      cwFocusCell(cw.activeCellKey);
+    }
+  }
+
+  function cwMovePrev(key){
+    var cells = cwWordCells(cw.activeWordIndex);
+    var idx = cells.indexOf(key);
+    if(idx > 0){
+      cw.activeCellKey = cells[idx-1];
+      cwFocusCell(cw.activeCellKey);
+    }
+  }
+
+  function cwFocusCell(key){
+    var el = cw.cellEls[key];
+    if(el){ var inp = el.querySelector('input'); if(inp) inp.focus(); }
+  }
+
+  function cwOnCellKeydown(key, e){
+    if(e.key === 'Backspace'){
+      var el = cw.cellEls[key];
+      var inp = el.querySelector('input');
+      if(!inp.value){
+        e.preventDefault();
+        cwMovePrev(key);
+        var cells = cwWordCells(cw.activeWordIndex);
+        var idx = cells.indexOf(cw.activeCellKey);
+        if(idx !== -1) cw.cellEls[cells[idx]].querySelector('input').value = '';
+        cwRender();
+      }
+    }
+  }
+
+  function cwCheckAutoComplete(){
+    cw.data.words.forEach(function(word, wi){
+      var cells = cwWordCells(wi);
+      var full = cells.every(function(k){
+        var el = cw.cellEls[k];
+        return el && el.querySelector('input').value;
+      });
+      if(full){
+        var letters = Array.from(word.answer);
+        var correct = cells.every(function(k, i){
+          return cw.cellEls[k].querySelector('input').value === letters[i];
+        });
+        if(correct) cw.solvedWords[wi] = true;
+      } else {
+        delete cw.solvedWords[wi];
+      }
+    });
+    cwUpdateProgress();
+    cwMaybeCelebrate();
+  }
+
+  function cwUpdateProgress(){
+    var total = cw.data.words.length;
+    var solved = Object.keys(cw.solvedWords).length;
+    document.getElementById('cw-progress-fill').style.width = (solved/total*100) + '%';
+    document.getElementById('cw-progress-label').textContent = solved + ' / ' + total;
+  }
+
+  function cwMaybeCelebrate(){
+    var total = cw.data.words.length;
+    var solved = Object.keys(cw.solvedWords).length;
+    if(solved === total){
+      setTimeout(function(){
+        document.getElementById('cw-overlay').classList.add('show');
+        playCelebrationSound();
+        triggerConfetti('cw-confetti-canvas');
+      }, 300);
+    }
+  }
+
+  function cwRender(){
+    var activeCells = cwWordCells(cw.activeWordIndex);
+    Object.keys(cw.cellEls).forEach(function(key){
+      var el = cw.cellEls[key];
+      el.classList.remove('active-cell','active-word','correct','incorrect');
+      if(activeCells.indexOf(key) !== -1){
+        el.classList.add(key === cw.activeCellKey ? 'active-cell' : 'active-word');
+      }
+    });
+
+    var word = cw.data.words[cw.activeWordIndex];
+    document.getElementById('cw-clue-badge').textContent = word.num;
+    document.getElementById('cw-clue-dir').textContent = word.dir==='H' ? 'по горизонтали' : 'по вертикали';
+    document.getElementById('cw-clue-word').textContent = word.clue;
+
+    cwRenderClueLists();
+  }
+
+  function cwRenderClueLists(){
+    var hList = document.getElementById('cw-clues-h');
+    var vList = document.getElementById('cw-clues-v');
+    hList.innerHTML = '';
+    vList.innerHTML = '';
+    cw.data.words
+      .map(function(w, wi){ return {w:w, wi:wi}; })
+      .sort(function(a,b){ return a.w.num - b.w.num; })
+      .forEach(function(item){
+        var w = item.w, wi = item.wi;
+        var div = document.createElement('div');
+        div.className = 'cw-clue-item' + (cw.solvedWords[wi] ? ' solved' : '');
+        div.innerHTML = '<div class="cw-clue-item-num">'+w.num+'</div>' +
+          '<div class="cw-clue-item-word">'+w.clue+'</div>' +
+          '<div class="cw-clue-item-check">✓</div>';
+        div.addEventListener('click', function(){
+          cw.activeWordIndex = wi;
+          cw.activeCellKey = cwWordCells(wi)[0];
+          cwFocusCell(cw.activeCellKey);
+          cwRender();
+        });
+        if(w.dir==='H') hList.appendChild(div);
+        else vList.appendChild(div);
+      });
+  }
+
+  document.getElementById('cw-check').addEventListener('click', function(){
+    Object.keys(cw.cellEls).forEach(function(key){
+      var el = cw.cellEls[key];
+      var inp = el.querySelector('input');
+      if(!inp.value) return;
+      var info = cw.cellMap[key];
+      el.classList.remove('correct','incorrect');
+      el.classList.add(inp.value === info.letter ? 'correct' : 'incorrect');
+    });
+  });
+
+  // подсказка (открыть букву) — за rewarded-рекламу, тот же блок, что и в квизе
+  document.getElementById('cw-hint').addEventListener('click', function(){
+    var btn = document.getElementById('cw-hint');
+    function reveal(){
+      var cells = cwWordCells(cw.activeWordIndex);
+      var letters = Array.from(cw.data.words[cw.activeWordIndex].answer);
+      for(var i=0;i<cells.length;i++){
+        var el = cw.cellEls[cells[i]];
+        var inp = el.querySelector('input');
+        if(!inp.value){
+          inp.value = letters[i];
+          break;
+        }
+      }
+      cwCheckAutoComplete();
+      cwRender();
+    }
+    if(!HintAdController){
+      reveal();
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Загрузка рекламы…';
+    HintAdController.show()
+      .then(function(){
+        btn.disabled = false;
+        btn.textContent = '💡 Буква за рекламу';
+        reveal();
+      })
+      .catch(function(){
+        btn.disabled = false;
+        btn.textContent = '💡 Буква за рекламу';
+      });
+  });
+
+  function endCrosswordToHome(){
+    if(tg && tg.BackButton) tg.BackButton.hide();
+    setTab('home');
+    renderHome();
+    showScreen('screen-home');
+  }
+
+  document.getElementById('cw-back').addEventListener('click', endCrosswordToHome);
+  document.getElementById('cw-home').addEventListener('click', endCrosswordToHome);
+  document.getElementById('cw-next').addEventListener('click', function(){
+    document.getElementById('cw-overlay').classList.remove('show');
+    requestStartCrossword();
+  });
+
+  // ---------- мемори ----------
+  var mem = {
+    cards: [],
+    flipped: [],
+    matchedCount: 0,
+    busy: false
+  };
+
+  function getMemoryCandidates(){
+    var pool = state.words.filter(function(w){ return w.level === state.level; });
+    var out = [];
+    var seen = {};
+    pool.forEach(function(w){
+      var ko = (w.word || '').trim();
+      var ru = (w.translation || '').trim();
+      if(!ko || !ru) return;
+      if(ru.length > 14) return; // не влезет в карточку
+      if(seen[ko]) return;
+      seen[ko] = true;
+      out.push({ ko: ko, ru: ru });
+    });
+    return out;
+  }
+
+  function requestStartMemory(){
+    requestSessionStart(startMemory);
+  }
+
+  function startMemory(){
+    var candidates = shuffleArr(getMemoryCandidates());
+    var pairCount = Math.min(6, candidates.length);
+    if(pairCount < 3){
+      alert('Недостаточно слов для карточек на этом уровне.');
+      return;
+    }
+    var chosen = candidates.slice(0, pairCount);
+    mem.cards = [];
+    chosen.forEach(function(entry, idx){
+      mem.cards.push({ id: 'a'+idx, entryIndex: idx, text: entry.ko, matched: false });
+      mem.cards.push({ id: 'b'+idx, entryIndex: idx, text: entry.ru, matched: false });
+    });
+    shuffleArr(mem.cards);
+    mem.flipped = [];
+    mem.matchedCount = 0;
+    mem.busy = false;
+    renderMemoryGrid();
+    showScreen('screen-memory');
+    document.getElementById('mem-overlay').classList.remove('show');
+    if(tg && tg.BackButton){
+      tg.BackButton.show();
+      tg.BackButton.onClick(endMemoryToHome);
+    }
+  }
+
+  function renderMemoryGrid(){
+    var gridEl = document.getElementById('mem-grid');
+    gridEl.innerHTML = '';
+    mem.cards.forEach(function(card){
+      var div = document.createElement('div');
+      div.className = 'mem-card';
+      div.dataset.id = card.id;
+      div.innerHTML = '<div class="mem-card-back">❓</div><div class="mem-card-face">'+escapeHtml(card.text)+'</div>';
+      div.addEventListener('click', function(){ onMemCardClick(card.id); });
+      gridEl.appendChild(div);
+    });
+    updateMemProgress();
+  }
+
+  function onMemCardClick(id){
+    if(mem.busy) return;
+    var card = mem.cards.find(function(c){ return c.id === id; });
+    if(!card || card.matched) return;
+    if(mem.flipped.indexOf(id) !== -1) return;
+    if(mem.flipped.length >= 2) return;
+
+    var cardEl = document.querySelector('.mem-card[data-id="'+id+'"]');
+    cardEl.classList.add('flipped');
+    mem.flipped.push(id);
+
+    if(mem.flipped.length === 2){
+      mem.busy = true;
+      var c1 = mem.cards.find(function(c){ return c.id === mem.flipped[0]; });
+      var c2 = mem.cards.find(function(c){ return c.id === mem.flipped[1]; });
+      if(c1.entryIndex === c2.entryIndex){
+        setTimeout(function(){
+          c1.matched = true; c2.matched = true;
+          document.querySelector('.mem-card[data-id="'+c1.id+'"]').classList.add('matched');
+          document.querySelector('.mem-card[data-id="'+c2.id+'"]').classList.add('matched');
+          mem.flipped = [];
+          mem.busy = false;
+          mem.matchedCount++;
+          updateMemProgress();
+          if(mem.matchedCount === mem.cards.length/2){
+            setTimeout(function(){
+              document.getElementById('mem-overlay').classList.add('show');
+              playCelebrationSound();
+              triggerConfetti('mem-confetti-canvas');
+            }, 300);
+          }
+        }, 500);
+      } else {
+        var el1 = document.querySelector('.mem-card[data-id="'+c1.id+'"]');
+        var el2 = document.querySelector('.mem-card[data-id="'+c2.id+'"]');
+        el1.classList.add('wrong'); el2.classList.add('wrong');
+        setTimeout(function(){
+          el1.classList.remove('flipped','wrong');
+          el2.classList.remove('flipped','wrong');
+          mem.flipped = [];
+          mem.busy = false;
+        }, 700);
+      }
+    }
+  }
+
+  function updateMemProgress(){
+    var total = mem.cards.length/2;
+    document.getElementById('mem-progress-fill').style.width = (mem.matchedCount/total*100) + '%';
+    document.getElementById('mem-progress-label').textContent = mem.matchedCount + ' / ' + total;
+  }
+
+  function endMemoryToHome(){
+    if(tg && tg.BackButton) tg.BackButton.hide();
+    setTab('home');
+    renderHome();
+    showScreen('screen-home');
+  }
+
+  document.getElementById('mem-back').addEventListener('click', endMemoryToHome);
+  document.getElementById('mem-home').addEventListener('click', endMemoryToHome);
+  document.getElementById('mem-next').addEventListener('click', function(){
+    document.getElementById('mem-overlay').classList.remove('show');
+    requestStartMemory();
+  });
+
+  // ---------- слово из слогов/букв ----------
+  var syl = {
+    pool: [],
+    current: null,
+    slots: [],
+    chipsOrder: [],
+    chipsUsed: [],
+    lastChipForSlot: {},
+    round: 0,
+    totalRounds: 8,
+    correctCount: 0,
+    streak: 0,
+    locked: false
+  };
+
+  function getSyllablesCandidates(){
+    var pool = state.words.filter(function(w){ return w.level === state.level; });
+    var out = [];
+    pool.forEach(function(w){
+      var letters = Array.from((w.word || '').trim());
+      if(letters.length < 2 || letters.length > 6) return;
+      if(!w.translation) return;
+      out.push({ answerLetters: letters, clue: w.translation, clueLabel: 'переведи и собери слово' });
+    });
+    return out;
+  }
+
+  function requestStartSyllables(){
+    requestSessionStart(startSyllables);
+  }
+
+  function startSyllables(){
+    syl.pool = shuffleArr(getSyllablesCandidates());
+    if(syl.pool.length < 4){
+      alert('Недостаточно слов для этого режима на выбранном уровне/направлении.');
+      return;
+    }
+    syl.round = 0;
+    syl.totalRounds = Math.min(8, syl.pool.length);
+    syl.correctCount = 0;
+    syl.streak = 0;
+    showScreen('screen-syllables');
+    document.getElementById('syl-overlay').classList.remove('show');
+    if(tg && tg.BackButton){
+      tg.BackButton.show();
+      tg.BackButton.onClick(endSyllablesToHome);
+    }
+    nextSylRound();
+  }
+
+  function nextSylRound(){
+    if(syl.round >= syl.totalRounds){
+      showSylEnd();
+      return;
+    }
+    var entry = syl.pool[syl.round];
+    syl.current = entry;
+    syl.slots = new Array(entry.answerLetters.length).fill(null);
+    syl.chipsOrder = shuffleArr(entry.answerLetters.map(function(l, i){ return { letter: l, origIndex: i }; }));
+    syl.chipsUsed = syl.chipsOrder.map(function(){ return false; });
+    syl.lastChipForSlot = {};
+    syl.locked = false;
+    document.getElementById('syl-clue-label').textContent = entry.clueLabel;
+    document.getElementById('syl-clue-text').textContent = entry.clue;
+    document.getElementById('syl-streak').textContent = syl.streak;
+    renderSylProgress();
+    renderSylBoard();
+  }
+
+  function renderSylProgress(){
+    var pct = (syl.round / syl.totalRounds) * 100;
+    document.getElementById('syl-progress-fill').style.width = pct + '%';
+  }
+
+  function renderSylBoard(){
+    var slotsEl = document.getElementById('syl-slots');
+    slotsEl.innerHTML = '';
+    syl.slots.forEach(function(val, i){
+      var d = document.createElement('div');
+      d.className = 'syl-slot' + (val ? ' filled' : '');
+      d.textContent = val || '';
+      d.addEventListener('click', function(){ sylRemoveSlot(i); });
+      slotsEl.appendChild(d);
+    });
+
+    var chipsEl = document.getElementById('syl-chips');
+    chipsEl.innerHTML = '';
+    syl.chipsOrder.forEach(function(chip, i){
+      var d = document.createElement('div');
+      d.className = 'syl-chip' + (syl.chipsUsed[i] ? ' used' : '');
+      d.textContent = chip.letter;
+      d.addEventListener('click', function(){ sylUseChip(i); });
+      chipsEl.appendChild(d);
+    });
+  }
+
+  function sylUseChip(chipIdx){
+    if(syl.locked) return;
+    if(syl.chipsUsed[chipIdx]) return;
+    var emptySlot = syl.slots.indexOf(null);
+    if(emptySlot === -1) return;
+    syl.slots[emptySlot] = syl.chipsOrder[chipIdx].letter;
+    syl.chipsUsed[chipIdx] = true;
+    syl.lastChipForSlot[emptySlot] = chipIdx;
+    renderSylBoard();
+    checkSylComplete();
+  }
+
+  function sylRemoveSlot(slotIdx){
+    if(syl.locked) return;
+    if(!syl.slots[slotIdx]) return;
+    var chipIdx = syl.lastChipForSlot[slotIdx];
+    if(chipIdx !== undefined){ syl.chipsUsed[chipIdx] = false; }
+    syl.slots[slotIdx] = null;
+    renderSylBoard();
+  }
+
+  function checkSylComplete(){
+    if(syl.slots.indexOf(null) !== -1) return;
+    syl.locked = true;
+    var answer = syl.current.answerLetters.join('');
+    var built = syl.slots.join('');
+    var correct = built === answer;
+    var slotEls = document.querySelectorAll('#syl-slots .syl-slot');
+    slotEls.forEach(function(el){ el.classList.add(correct ? 'correct' : 'incorrect'); });
+    if(correct){
+      syl.correctCount++;
+      syl.streak++;
+    } else {
+      syl.streak = 0;
+    }
+    setTimeout(function(){
+      syl.round++;
+      nextSylRound();
+    }, correct ? 700 : 1100);
+  }
+
+  document.getElementById('syl-clear').addEventListener('click', function(){
+    if(syl.locked) return;
+    syl.slots = syl.slots.map(function(){ return null; });
+    syl.chipsUsed = syl.chipsUsed.map(function(){ return false; });
+    syl.lastChipForSlot = {};
+    renderSylBoard();
+  });
+
+  document.getElementById('syl-hint').addEventListener('click', function(){
+    var btn = document.getElementById('syl-hint');
+    function reveal(){
+      if(syl.locked) return;
+      var emptySlot = syl.slots.indexOf(null);
+      if(emptySlot === -1) return;
+      var correctLetter = syl.current.answerLetters[emptySlot];
+      var chipIdx = -1;
+      for(var i=0;i<syl.chipsOrder.length;i++){
+        if(!syl.chipsUsed[i] && syl.chipsOrder[i].letter === correctLetter){ chipIdx = i; break; }
+      }
+      if(chipIdx === -1) return;
+      sylUseChip(chipIdx);
+    }
+    if(!HintAdController){
+      reveal();
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Загрузка рекламы…';
+    HintAdController.show()
+      .then(function(){
+        btn.disabled = false;
+        btn.textContent = '💡 Буква за рекламу';
+        reveal();
+      })
+      .catch(function(){
+        btn.disabled = false;
+        btn.textContent = '💡 Буква за рекламу';
+      });
+  });
+
+  function showSylEnd(){
+    document.getElementById('syl-overlay-correct').textContent = syl.correctCount;
+    document.getElementById('syl-overlay-total').textContent = syl.totalRounds;
+    document.getElementById('syl-overlay').classList.add('show');
+    if(syl.correctCount / syl.totalRounds >= 0.6){
+      playCelebrationSound();
+      triggerConfetti('syl-confetti-canvas');
+    }
+  }
+
+  function endSyllablesToHome(){
+    if(tg && tg.BackButton) tg.BackButton.hide();
+    setTab('home');
+    renderHome();
+    showScreen('screen-home');
+  }
+
+  document.getElementById('syl-back').addEventListener('click', endSyllablesToHome);
+  document.getElementById('syl-overlay-home').addEventListener('click', endSyllablesToHome);
+  document.getElementById('syl-overlay-next').addEventListener('click', function(){
+    document.getElementById('syl-overlay').classList.remove('show');
+    requestStartSyllables();
+  });
 
   // ---------- статистика ----------
   function renderStats(){
